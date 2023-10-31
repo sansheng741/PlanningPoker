@@ -1,16 +1,18 @@
 import {socket} from '@/socket';
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {Button, Card, Input, List, message, Modal} from "antd";
 import {BankOutlined, UserOutlined} from "@ant-design/icons";
+import {history} from 'umi';
 
 export default function HomePage() {
-
-  const [isNameModalOpen, setIsNameModalOpen] = useState(true);
+  const usernameFromSession = sessionStorage.getItem('username');
+  const [isNameModalOpen, setIsNameModalOpen] = useState(!usernameFromSession);
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
-  const [username, setUsername] = useState('');
+  const [username, setUsername] = useState(usernameFromSession);
   const [roomName, setRoomName] = useState('');
   const [rooms, setRooms] = useState([])
   const [messageApi, contextHolder] = message.useMessage();
+
 
   const handleRoomModalOk = () => {
     if (roomName && roomName.length > 0) {
@@ -30,20 +32,31 @@ export default function HomePage() {
     setIsRoomModalOpen(true);
   };
 
+  function handleLogin() {
+    socket.connect()
+    socket.emit('login', username, ({isExists, rooms}) => {
+      if (isExists) {
+        messageApi.open({
+          type: 'error',
+          content: '名字已被注册,换一个吧😧',
+        });
+      } else {
+        setIsNameModalOpen(false);
+        sessionStorage.setItem('username', username)
+        setRooms(rooms)
+      }
+    })
+  }
+
+  useEffect(() => {
+    if (usernameFromSession) {
+      handleLogin()
+    }
+  }, [])
+
   const handleNameModalOk = () => {
     if (username && username.length > 0) {
-      socket.connect()
-      socket.emit('login', username, ({isExists, rooms}) => {
-        if (isExists) {
-          messageApi.open({
-            type: 'error',
-            content: '名字已被注册,换一个吧😧',
-          });
-        } else {
-          setIsNameModalOpen(false);
-          setRooms(rooms)
-        }
-      })
+      handleLogin();
     }
   };
 
@@ -87,7 +100,7 @@ export default function HomePage() {
           dataSource={rooms}
           renderItem={(item) => (
             <List.Item>
-              <Card title={item.title} extra={<a href="/room">More</a>}>创建者： {item.creator.username}</Card>
+              <Card title={item.title} extra={<a onClick={() => history.push('room')}>加入</a>}>创建者： {item.creator.username}</Card>
             </List.Item>
           )}
         />
