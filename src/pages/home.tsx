@@ -84,7 +84,7 @@ export default function HomePage() {
           <Input size="large" prefix={<UserOutlined />} onChange={onUsernameChange}/>
         </Modal>
         <Modal title="房间名🏡" open={isRoomModalOpen} onOk={handleRoomModalOk} onCancel={handleRoomModalCancel} maskClosable={false}>
-          <Input size="large" prefix={<BankOutlined />} onChange={onRoomNameChange}/>
+          <Input size="large" prefix={<BankOutlined />} onChange={onRoomNameChange} value={roomName}/>
         </Modal>
         <div style={{height: 100, backgroundColor: 'blue', color: '#fff', fontSize: 32, margin: '12px 0'}}>房间列表</div>
         <List
@@ -100,7 +100,7 @@ export default function HomePage() {
           dataSource={rooms}
           renderItem={(item) => (
             <List.Item>
-              <Card title={item.title} extra={<a onClick={() => history.push('room')}>加入</a>}>创建者： {item.creator.username}</Card>
+              <Card title={`🏡 ${item.title}`} extra={<a onClick={() => history.push('room')}>加入</a>}>创建者： {item.creator.username}</Card>
             </List.Item>
           )}
         />
