@@ -22,18 +22,20 @@ let users = [];
 
 
 io.on('connection', (socket) => {
-  socket.on('logout', (username) => {
-    console.log(username, '登出了');
-    users = users.filter(user => user !== username)
+  socket.on('disconnect', (username) => {
+    let user = users.find(item => item.userId === socket.id)
+    if (user) {
+      console.log(user.username, socket.id, '登出了');
+      users = users.filter(item => item.userId !== socket.id)
+    }
   });
 
   socket.on('login', (username, callback) => {
-    let isExists = users.some(item => item === username);
-    console.log(users,username,isExists)
+    let isExists = users.some(item => item.username === username);
     callback({isExists})
     if (!isExists) {
-      console.log(username, '登录了')
-      users.push(username)
+      console.log(username, socket.id, '登录了')
+      users.push({username, userId: socket.id})
     }
   })
 });

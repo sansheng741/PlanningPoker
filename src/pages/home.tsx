@@ -1,7 +1,7 @@
 import {socket} from '@/socket';
 import {useEffect, useState} from "react";
 import {Button, Card, Input, List, message, Modal} from "antd";
-import {BankOutlined, UserOutlined} from "@ant-design/icons";
+import {BankOutlined, SwapOutlined, UserOutlined} from "@ant-design/icons";
 
 export default function HomePage() {
 
@@ -30,13 +30,6 @@ export default function HomePage() {
   const [isRoomModalOpen, setIsRoomModalOpen] = useState(false);
   const [username, setUsername] = useState(undefined);
   const [messageApi, contextHolder] = message.useMessage();
-
-  useEffect(() => {
-    return () => {
-      socket.emit('logout', username)
-    }
-  }, [])
-
 
   const handleRoomModalOk = () => {
     setIsRoomModalOpen(false);
@@ -72,6 +65,10 @@ export default function HomePage() {
     setIsNameModalOpen(false);
   };
 
+  const showNameModal = () => {
+    setIsNameModalOpen(true);
+  };
+
   const onUsernameChange = (e) => {
     setUsername(e.target.value)
   }
@@ -81,7 +78,7 @@ export default function HomePage() {
     <>
       {contextHolder}
       <div style={{width: '70%', margin: '0 auto'}}>
-        <div>Hi: {username}</div>
+        <div>Hi: {username} </div><Button icon={<SwapOutlined />} onClick={showNameModal}/>
         <Button type="primary" onClick={showRoomModal}>Create Room</Button>
         <Modal title="取个响亮的名字吧😉" open={isNameModalOpen} onOk={handleNameModalOk} onCancel={handleNameModalCancel} maskClosable={false}>
           <Input size="large" prefix={<UserOutlined />} onChange={onUsernameChange}/>
