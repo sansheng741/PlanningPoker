@@ -81,11 +81,11 @@ io.on('connection', (socket) => {
     callback({isExists, rooms})
   })
 
-  socket.on('createRoom', (roomName, callback) => {
+  socket.on('createRoom', (roomName) => {
     console.log(socket.id, '创建了房间', roomName)
     let creator = findUser(socket.id)
     rooms.push({roomName, creator, members: []})
-    callback({rooms})
+    io.emit('notifyRoomUpdate', {rooms})
   })
 
   socket.on('fetchRooms', (_, callback) => {

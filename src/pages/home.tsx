@@ -16,11 +16,9 @@ export default function HomePage() {
 
   const handleRoomModalOk = () => {
     if (roomName && roomName.length > 0) {
-      socket.emit('createRoom', roomName, ({rooms}) => {
-        setIsRoomModalOpen(false);
-        setRoomName('');
-        setRooms(rooms)
-      })
+      socket.emit('createRoom', roomName)
+      setIsRoomModalOpen(false);
+      setRoomName('');
     }
   };
 
@@ -57,6 +55,9 @@ export default function HomePage() {
         setRooms(rooms)
       })
     }
+    socket.on('notifyRoomUpdate', ({rooms}) => {
+      setRooms(rooms)
+    })
   }, [])
 
   const handleNameModalOk = () => {
