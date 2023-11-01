@@ -1,22 +1,29 @@
-const express = require('express')
 const { Server } = require('socket.io');
 
+// ================= prd ===============
+// const express = require('express')
+// const { createServer } = require('node:http');
+// const path = require('path');
+//
+// const app = express();
+// const server = createServer(app);
+// const io = new Server(server)
+// server.listen(3000, () => {
+//   console.log('server running at http://localhost:3000');
+// });
+// app.use(express.static(__dirname + '/dist'))
+//
+// app.get('*', (req, res) => {
+//   res.sendFile(path.join(__dirname, 'dist', 'index.html'));
+// })
 
-const app = express();
+// ================= dev ===============
 const io = new Server({
   cors: {
     origin: "http://localhost:8000"
   }
 });
 io.listen(3000);
-
-
-app.use(express.static(__dirname + '/dist'))
-
-
-app.get('*', (req, res) => {
-    res.end('404 Not Found')
-})
 
 let users = [];
 let rooms = []
@@ -71,7 +78,7 @@ io.on('connection', (socket) => {
     let user = users.find(item => item.userId === socket.id)
     if (user) {
       log(user.username, socket.id, '登出了');
-      leaveRoom(socket.id)
+      leaveRoom(socket)
       removeUser(socket.id)
     }
   })
@@ -101,12 +108,14 @@ io.on('connection', (socket) => {
   })
 
   socket.on('joinRoom', (roomName,callback) => {
-    socket.join(roomName)
-    let user = findUser(socket.id)
-    joinRoom(roomName, user)
     let room = findRoom(roomName);
-    callback({user, room})
-    socket.to(roomName).emit(`notifyRoomMember`, {user, room});
+    if (room) {
+      socket.join(roomName)
+      let user = findUser(socket.id)
+      joinRoom(roomName, user)
+      callback({user, room})
+      socket.to(roomName).emit(`notifyRoomMember`, {user, room});
+    }
   })
 
   socket.on('leaveRoom', (roomName) => {
