@@ -49,8 +49,13 @@ export default function HomePage() {
   }
 
   useEffect(() => {
-    if (usernameFromSession) {
+    if (usernameFromSession && !socket.connected) {
       handleLogin()
+    }
+    if (socket.connected) {
+      socket.emit('fetchRooms', null, ({rooms}) => {
+        setRooms(rooms)
+      })
     }
   }, [])
 
@@ -59,8 +64,6 @@ export default function HomePage() {
       handleLogin();
     }
   };
-
-
 
   const handleNameModalCancel = () => {
     setIsNameModalOpen(false);
@@ -74,12 +77,16 @@ export default function HomePage() {
     setRoomName(e.target.value)
   }
 
+  const joinRoom = (roomName) => {
+    history.push(`room/${roomName}`)
+  }
+
   return (
     <>
       {contextHolder}
       <div style={{width: '70%', margin: '0 auto'}}>
         <div>Hi: {username} </div>
-        <Button type="primary" onClick={showRoomModal}>Create Room</Button>
+        <Button type="primary" onClick={showRoomModal}>创建房间</Button>
         <Modal title="取个响亮的名字吧😉" open={isNameModalOpen} onOk={handleNameModalOk} onCancel={handleNameModalCancel} maskClosable={false}>
           <Input size="large" prefix={<UserOutlined />} onChange={onUsernameChange}/>
         </Modal>
@@ -100,7 +107,7 @@ export default function HomePage() {
           dataSource={rooms}
           renderItem={(item) => (
             <List.Item>
-              <Card title={`🏡 ${item.title}`} extra={<a onClick={() => history.push('room')}>加入</a>}>创建者： {item.creator.username}</Card>
+              <Card title={`🏡 ${item.roomName}`} extra={<a onClick={() => joinRoom(item.roomName)}>加入</a>}>创建者： {item.creator.username}</Card>
             </List.Item>
           )}
         />
