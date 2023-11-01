@@ -39,11 +39,15 @@ const joinRoom = (roomName, user) => {
       item.members.push(user)
     }
   })
-  console.log(user.username, '加入了房间', roomName)
+  log(user.username, '加入了房间', roomName)
 }
 
 const removeUser = (userId) => {
   users = users.filter(item => item.userId !== userId)
+}
+
+const log = (...data) => {
+  console.log(new Date(), ...data);
 }
 
 const leaveRoom = (socket) => {
@@ -57,7 +61,7 @@ const leaveRoom = (socket) => {
 
       }
     })
-    console.log(user.username, '离开了房间', room.roomName)
+    log(user.username, '离开了房间', room.roomName)
     socket.to(room.roomName).emit(`notifyRoomMember`, {user, room});
   }
 }
@@ -66,7 +70,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', (username) => {
     let user = users.find(item => item.userId === socket.id)
     if (user) {
-      console.log(user.username, socket.id, '登出了');
+      log(user.username, socket.id, '登出了');
       leaveRoom(socket.id)
       removeUser(socket.id)
     }
@@ -75,17 +79,21 @@ io.on('connection', (socket) => {
   socket.on('login', (username, callback) => {
     let isExists = users.some(item => item.username === username);
     if (!isExists) {
-      console.log(username, socket.id, '登录了')
+      log(username, socket.id, '登录了')
       users.push({username, userId: socket.id})
     }
     callback({isExists, rooms})
   })
 
-  socket.on('createRoom', (roomName) => {
-    console.log(socket.id, '创建了房间', roomName)
-    let creator = findUser(socket.id)
-    rooms.push({roomName, creator, members: []})
-    io.emit('notifyRoomUpdate', {rooms})
+  socket.on('createRoom', (roomName, callback) => {
+    let isExists = findRoom(roomName)
+    if (!isExists) {
+      log(socket.id, '创建了房间', roomName)
+      let creator = findUser(socket.id)
+      rooms.push({roomName, creator, members: []})
+      io.emit('notifyRoomUpdate', {rooms})
+    }
+    callback({isExists})
   })
 
   socket.on('fetchRooms', (_, callback) => {

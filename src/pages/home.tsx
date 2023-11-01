@@ -16,9 +16,17 @@ export default function HomePage() {
 
   const handleRoomModalOk = () => {
     if (roomName && roomName.length > 0) {
-      socket.emit('createRoom', roomName)
-      setIsRoomModalOpen(false);
-      setRoomName('');
+      socket.emit('createRoom', roomName ,({isExists}) => {
+        if (isExists) {
+          messageApi.open({
+            type: 'error',
+            content: '名字已被注册,换一个吧😧',
+          });
+        } else {
+          setIsRoomModalOpen(false);
+          setRoomName('');
+        }
+      })
     }
   };
 
