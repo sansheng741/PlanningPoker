@@ -26,7 +26,7 @@ const io = new Server({
 io.listen(3000);
 
 let users = [];
-let rooms = []
+let rooms = [];
 
 const findUser = (id) => {
   return users.find(item => item.userId === id);
@@ -41,12 +41,17 @@ const findRoomByUserId = (userId) => {
 }
 
 const joinRoom = (roomName, user) => {
-  rooms.forEach(item => {
-    if(item.roomName === roomName){
-      item.members.push(user)
-    }
-  })
-  log(user.username, '加入了房间', roomName)
+  let room = findRoom(roomName)
+  if (user && room) {
+    let userInRoom = findRoomByUserId(user.userId)
+    if(userInRoom && room.roomName === userInRoom.roomName) return;
+    rooms.forEach(item => {
+      if (item.roomName === roomName) {
+        item.members.push(user)
+      }
+    })
+    log(user.username, '加入了房间', roomName)
+  }
 }
 
 const removeUser = (userId) => {
@@ -65,11 +70,11 @@ const leaveRoom = (socket) => {
     rooms.forEach(item => {
       if (item.roomName === room.roomName) {
         item.members.splice(item.members.findIndex(user => user.userId === userId), 1)
-
+        user.vote = ''
       }
     })
     log(user.username, '离开了房间', room.roomName)
-    socket.to(room.roomName).emit(`notifyRoomMember`, {user, room});
+    socket.to(room.roomName).emit(`notifyRoomMember`, {room});
   }
 }
 
@@ -114,7 +119,7 @@ io.on('connection', (socket) => {
       let user = findUser(socket.id)
       joinRoom(roomName, user)
       callback({user, room})
-      socket.to(roomName).emit(`notifyRoomMember`, {user, room});
+      socket.to(roomName).emit(`notifyRoomMember`, {room});
     }
   })
 
@@ -122,9 +127,23 @@ io.on('connection', (socket) => {
     socket.leave(roomName)
     leaveRoom(socket)
   })
+
+  socket.on('vote', (point) => {
+    rooms.forEach(room => {
+      room.members.forEach(user => {
+        if(user.userId === socket.id){
+          user['vote'] = point
+        }
+      })
+    })
+
+    let room = findRoomByUserId(socket.id)
+    let unVoteUsers = room.members.filter(user => !(user.vote && user.vote.length > 0))
+    if (unVoteUsers.length === 0) {
+      io.to(room.roomName).emit(`notifyRoomMember`, {room});
+    }
+  })
 });
-
-
 
 
 

@@ -1,8 +1,9 @@
 import {socket} from '@/socket';
-import {useEffect, useState} from "react";
-import {Button, Card, Input, List, message, Modal} from "antd";
+import React, {useEffect, useState} from "react";
+import {Button, Card, Col, Input, List, message, Modal, Row} from "antd";
 import {BankOutlined, UserOutlined} from "@ant-design/icons";
 import {history} from 'umi';
+import styles from './index.less';
 
 export default function HomePage() {
   const usernameFromSession = sessionStorage.getItem('username');
@@ -93,16 +94,21 @@ export default function HomePage() {
   return (
     <>
       {contextHolder}
-      <div style={{width: '70%', margin: '0 auto'}}>
-        <div>Hi: {username} </div>
-        <Button type="primary" onClick={showRoomModal}>创建房间</Button>
+      <div className={styles.content}>
+        <Row justify={'space-between'}>
+          <Col>
+            <div>Hi: {username}</div>
+          </Col>
+          <Col>
+            <Button type="primary" onClick={showRoomModal}>创建房间</Button>
+          </Col>
+        </Row>
         <Modal title="取个响亮的名字吧😉" open={isNameModalOpen} onOk={handleNameModalOk} onCancel={handleNameModalCancel} maskClosable={false}>
           <Input size="large" prefix={<UserOutlined />} onChange={onUsernameChange}/>
         </Modal>
         <Modal title="房间名🏡" open={isRoomModalOpen} onOk={handleRoomModalOk} onCancel={handleRoomModalCancel} maskClosable={false}>
           <Input size="large" prefix={<BankOutlined />} onChange={onRoomNameChange} value={roomName}/>
         </Modal>
-        <div style={{height: 100, backgroundColor: 'blue', color: '#fff', fontSize: 32, margin: '12px 0'}}>房间列表</div>
         <List
           grid={{
             gutter: 16,
