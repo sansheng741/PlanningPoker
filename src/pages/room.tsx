@@ -89,8 +89,8 @@ const Room = () => {
                 <Poker
                   point={item}
                   style={{
-                    backgroundColor: `${checkedPoint == item ? '#39f3149e' : '#FFF'}`,
-                    color: `${checkedPoint == item ? '#FFF' : ''}`
+                    backgroundColor: `${checkedPoint === item+'' ? '#39f3149e' : '#FFF'}`,
+                    color: `${checkedPoint == item+'' ? '#FFF' : ''}`
                   }}
                   onClick={handleCheckPoint}
                 />
