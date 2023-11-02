@@ -111,7 +111,7 @@ io.on('connection', (socket) => {
       socket.join(roomName)
       let user = findUser(socket.id)
       joinRoom(roomName, user)
-      io.to(roomName).emit(`notifyRoomMember`, {room});
+      io.to(roomName).emit(`newMemberJoin`, {room});
     }
   })
 
@@ -122,13 +122,12 @@ io.on('connection', (socket) => {
 
   socket.on('vote', (point) => {
     let room = findRoomByUserId(socket.id)
-    room.members.forEach(user => {
-      if (user.userId === socket.id) {
-        user['vote'] = point
-      }
-    })
-    let unVoteUsers = room.members.filter(user => !(user.vote && user.vote.length > 0))
-    if (unVoteUsers.length === 0) {
+    if (room) {
+      room?.members?.forEach(user => {
+        if (user.userId === socket.id) {
+          user['vote'] = point
+        }
+      })
       io.to(room.roomName).emit(`notifyRoomMember`, {room});
     }
   })

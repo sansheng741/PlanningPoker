@@ -28,6 +28,7 @@ const Room = () => {
   const params = useParams();
   const [checkedPoint, setCheckedPoint] = useState<string>('')
   const [story, setStory] = useState<string>()
+  const [isDisplayResult, setIsDisplayResult] = useState<boolean>(false)
 
   function login() {
     socket.connect()
@@ -49,6 +50,11 @@ const Room = () => {
       setRoom(room)
     })
 
+    socket.on('newMemberJoin', ({room}) => {
+      setRoom(room)
+      setCheckedPoint('')
+    })
+
     socket.on('leaveRoom', ({user, room}) => {
       setRoom(room)
     })
@@ -56,15 +62,21 @@ const Room = () => {
     socket.on('story', ({story}) => {
       console.log(story)
       setStory(story)
+      setCheckedPoint('')
     })
 
   }, [])
 
   useEffect(() => {
-    let unVoteUser = room?.members?.filter((item) => !item.vote)
-    if (unVoteUser && unVoteUser.length > 0) {
-      setCheckedPoint('')
-    }
+    // 防止刷新暴露point
+    setTimeout(() => {
+      let unVoteUser = room?.members?.filter((item) => !item.vote)
+      if (unVoteUser && unVoteUser.length > 0) {
+        setIsDisplayResult(false)
+      } else {
+        setIsDisplayResult(true)
+      }
+    },500)
   }, [room])
 
   const leaveRoom = () => {
@@ -81,6 +93,7 @@ const Room = () => {
     console.log(e.target.value)
     socket.emit('story', e.target.value)
     socket.emit('clearVote', room?.roomName)
+    setCheckedPoint('')
   }
 
   return (
@@ -137,7 +150,16 @@ const Room = () => {
                   {item.username}
                 </Avatar>}
             />
-            <div style={{fontSize: 36, fontWeight: 'bold', color:'#5190BF'}}>{item.vote}</div>
+            {
+              isDisplayResult && (
+                <div style={{fontSize: 36, fontWeight: 'bold', color:'#5190BF'}}>{item.vote}</div>
+              )
+            }
+            {
+              item.vote && !isDisplayResult && (
+                <div style={{fontSize: 36, fontWeight: 'bold', color:'#5190BF'}}>✔</div>
+              )
+            }
           </List.Item>
         )}
       />
