@@ -28,7 +28,6 @@ const Room = () => {
   const params = useParams();
   const [checkedPoint, setCheckedPoint] = useState<string>('')
 
-  // console.log(room)
   function login() {
     socket.connect()
     socket.emit('login', usernameFromSession, ({isExists, rooms}) => {
@@ -46,7 +45,6 @@ const Room = () => {
     })
 
     socket.on('notifyRoomMember', ({room}) => {
-      console.log(room)
       setRoom(room)
     })
 
@@ -55,6 +53,13 @@ const Room = () => {
     })
 
   }, [])
+
+  useEffect(() => {
+    let unVoteUser = room?.members?.filter((item) => !item.vote)
+    if (unVoteUser && unVoteUser.length > 0) {
+      setCheckedPoint('')
+    }
+  }, [room])
 
   const leaveRoom = () => {
     socket.emit('leaveRoom', params.roomName)
@@ -90,7 +95,7 @@ const Room = () => {
                   point={item}
                   style={{
                     backgroundColor: `${checkedPoint === item+'' ? '#39f3149e' : '#FFF'}`,
-                    color: `${checkedPoint == item+'' ? '#FFF' : ''}`
+                    color: `${checkedPoint === item+'' ? '#FFF' : ''}`
                   }}
                   onClick={handleCheckPoint}
                 />
