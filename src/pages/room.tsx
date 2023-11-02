@@ -1,7 +1,7 @@
 import {socket} from '@/socket';
 import React, {useEffect, useState} from "react";
 import {history, useParams} from 'umi';
-import {Avatar, Button, Col, List, Row} from "antd";
+import {Avatar, Button, Col, Input, List, Row} from "antd";
 import Poker from "@/components/Poker";
 import styles from './index.less';
 
@@ -27,6 +27,7 @@ const Room = () => {
   const usernameFromSession = sessionStorage.getItem('username');
   const params = useParams();
   const [checkedPoint, setCheckedPoint] = useState<string>('')
+  const [story, setStory] = useState<string>()
 
   function login() {
     socket.connect()
@@ -52,6 +53,11 @@ const Room = () => {
       setRoom(room)
     })
 
+    socket.on('story', ({story}) => {
+      console.log(story)
+      setStory(story)
+    })
+
   }, [])
 
   useEffect(() => {
@@ -71,6 +77,12 @@ const Room = () => {
     socket.emit('vote', point)
   }
 
+  const submitStory = (e) => {
+    console.log(e.target.value)
+    socket.emit('story', e.target.value)
+    socket.emit('clearVote', room?.roomName)
+  }
+
   return (
     <div className={styles.content}>
       <Row justify={'space-between'}>
@@ -84,7 +96,13 @@ const Room = () => {
           <Button type="primary" onClick={leaveRoom}>离开房间</Button>
         </Col>
       </Row>
-
+      <p style={{color: '#828282', fontSize: 24}}>故事卡: </p>
+      <Input
+        disabled={usernameFromSession !== room?.creator.username}
+        onPressEnter={submitStory}
+        placeholder="按下回车确认"
+        value={story}
+      />
       <p style={{color: '#828282', fontSize: 24}}>卡片: </p>
       <Row gutter={[0, 8]}>
         {

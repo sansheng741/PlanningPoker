@@ -1,4 +1,4 @@
-const { Server } = require('socket.io');
+const {Server} = require('socket.io');
 
 // ================= prd ===============
 // const express = require('express')
@@ -37,14 +37,14 @@ const findRoom = (roomName) => {
 }
 
 const findRoomByUserId = (userId) => {
-  return rooms.find(item=> item.members.findIndex(user => user.userId === userId) > -1)
+  return rooms.find(item => item.members.findIndex(user => user.userId === userId) > -1)
 }
 
 const joinRoom = (roomName, user) => {
   let room = findRoom(roomName)
   if (user && room) {
     let userInRoom = findRoomByUserId(user.userId)
-    if(userInRoom && room.roomName === userInRoom.roomName) return;
+    if (userInRoom && room.roomName === userInRoom.roomName) return;
     room.members.push(user)
     room.members.forEach(user => user.vote = '')
     log(user.username, '加入了房间', roomName)
@@ -105,7 +105,7 @@ io.on('connection', (socket) => {
     callback({rooms})
   })
 
-  socket.on('joinRoom', (roomName,callback) => {
+  socket.on('joinRoom', (roomName, callback) => {
     let room = findRoom(roomName);
     if (room) {
       socket.join(roomName)
@@ -123,7 +123,7 @@ io.on('connection', (socket) => {
   socket.on('vote', (point) => {
     let room = findRoomByUserId(socket.id)
     room.members.forEach(user => {
-      if(user.userId === socket.id){
+      if (user.userId === socket.id) {
         user['vote'] = point
       }
     })
@@ -131,6 +131,17 @@ io.on('connection', (socket) => {
     if (unVoteUsers.length === 0) {
       io.to(room.roomName).emit(`notifyRoomMember`, {room});
     }
+  })
+
+  socket.on('clearVote', (roomName) => {
+    let room = findRoom(roomName);
+    room.members.forEach(user => user.vote = '')
+    io.to(room.roomName).emit(`notifyRoomMember`, {room});
+  })
+
+  socket.on('story', (story) => {
+    let room = findRoomByUserId(socket.id);
+    socket.to(room.roomName).emit('story', {story})
   })
 });
 
