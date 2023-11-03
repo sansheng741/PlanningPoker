@@ -7,5 +7,5 @@
 - node.js
 
 ## 启动
-- yarn server
+- node server
 - localhost:3000
