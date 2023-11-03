@@ -1,7 +1,7 @@
 import {socket} from '@/socket';
 import React, {useEffect, useState} from "react";
 import {history, useParams} from 'umi';
-import {Avatar, Button, Col, Flex, Input, List, Progress, Row} from "antd";
+import {Avatar, Button, Col, Flex, Input, List, Row} from "antd";
 import Poker from "@/components/Poker";
 import styles from './index.less';
 
@@ -68,8 +68,8 @@ const Room = () => {
       console.log(story)
       setStory(story)
       setCheckedPoint('')
+      setVoteResult([])
     })
-
   }, [])
 
   useEffect(() => {
@@ -157,7 +157,18 @@ const Room = () => {
           })
         }
       </Row>
-      <p style={{color: '#828282', fontSize: 24}}>成员: ({room?.members.length})</p>
+      <Row justify={'space-between'} align={'middle'}>
+        <Col>
+          <p style={{color: '#828282', fontSize: 24}}>成员: ({room?.members.length})</p>
+        </Col>
+        <Col>
+          {
+            isDisplayResult && (
+              <div style={{fontSize: 16}}>平均值：{voteResult?.[2]}</div>
+            )
+          }
+        </Col>
+      </Row>
       <List
         grid={{
           gutter: 16,
@@ -166,33 +177,51 @@ const Room = () => {
           md: 4,
           lg: 4,
           xl: 6,
-          xxl: 3,
+          xxl: 8,
         }}
         dataSource={room?.members}
         renderItem={(item, index) => (
           <List.Item>
-            <Flex gap="small" vertical justify={'center'} align={'center'}>
-              <Avatar
-                style={{backgroundColor: ColorList[index % ColorList.length], verticalAlign: 'middle'}}
-                size={72}
-              >
-                {item.username}
-              </Avatar>
-              {
-                isDisplayResult && (
-                  <>
-                    <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>{item.vote}</div>
-                    <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[0] ? 'MAX' : ''}</div>
-                    <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[1] ? 'MIN' : ''}</div>
-                  </>
-                )
-              }
-              {
-                item.vote && !isDisplayResult && (
-                  <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>✔</div>
-                )
-              }
-            </Flex>
+            <div style={{padding: 10}}>
+              <Flex gap="small" vertical justify={'center'} align={'center'}>
+                <Avatar
+                  style={{backgroundColor: ColorList[index % ColorList.length], verticalAlign: 'middle'}}
+                  size={72}
+                >
+                  {item.username}
+                </Avatar>
+                {
+                  isDisplayResult && (
+                    <>
+                      <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>{item?.vote}</div>
+                      {
+                        item?.vote * 1 === voteResult?.[0] && (
+                          <div style={{
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            color: '#ff0000'
+                          }}>MAX</div>
+                        )
+                      }
+                      {
+                        item?.vote * 1 === voteResult?.[1] && (
+                          <div style={{
+                            fontSize: 18,
+                            fontWeight: 'bold',
+                            color: '#ff0000'
+                          }}>MIN</div>
+                        )
+                      }
+                    </>
+                  )
+                }
+                {
+                  item.vote && !isDisplayResult && (
+                    <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>✔</div>
+                  )
+                }
+              </Flex>
+            </div>
           </List.Item>
         )}
       />
