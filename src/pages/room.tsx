@@ -17,7 +17,7 @@ interface RoomType {
   members: UserType[];
 }
 
-const cards = [0, 0.5, 1, 2, 3, 5, 8, 13, 21, 34, 100, '?']
+const cards = [0, 0.5, 1, 2, 3, 5, 8, 13, 20, 40, 100, '?']
 const ColorList = ['#f56a00', '#7265e6', '#ffbf00', '#00a2ae'];
 
 
@@ -29,6 +29,7 @@ const Room = () => {
   const [checkedPoint, setCheckedPoint] = useState<string>('')
   const [story, setStory] = useState<string>()
   const [isDisplayResult, setIsDisplayResult] = useState<boolean>(false)
+  const [voteResult, setVoteResult] = useState<number[]>()
 
   function login() {
     socket.connect()
@@ -75,8 +76,23 @@ const Room = () => {
         setIsDisplayResult(false)
       } else {
         setIsDisplayResult(true)
+
+        //统计结果
+        let votes = room?.members.map(item => {
+          if (!isNaN(Number(item.vote))) {
+            return Number(item.vote);
+          }
+        }).filter(item => item)
+        console.log(votes)
+        if (votes && votes.length > 0) {
+          let maxVote = Math.max(...votes)
+          let minVote = Math.min(...votes)
+          let avgVote = Number((votes?.reduce((a, b) => a + b) / votes?.length).toFixed(2));
+          console.log(maxVote, minVote, avgVote)
+          setVoteResult([maxVote, minVote, avgVote])
+        }
       }
-    },500)
+    }, 500)
   }, [room])
 
   const leaveRoom = () => {
@@ -125,8 +141,8 @@ const Room = () => {
                 <Poker
                   point={item}
                   style={{
-                    backgroundColor: `${checkedPoint === item+'' ? '#39f3149e' : '#FFF'}`,
-                    color: `${checkedPoint === item+'' ? '#FFF' : ''}`
+                    backgroundColor: `${checkedPoint === item + '' ? '#39f3149e' : '#FFF'}`,
+                    color: `${checkedPoint === item + '' ? '#FFF' : ''}`
                   }}
                   onClick={handleCheckPoint}
                 />
@@ -152,12 +168,16 @@ const Room = () => {
             />
             {
               isDisplayResult && (
-                <div style={{fontSize: 36, fontWeight: 'bold', color:'#5190BF'}}>{item.vote}</div>
+                <>
+                  <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[0] ? 'MAX' : ''}</div>
+                  <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[1] ? 'MIN' : ''}</div>
+                  <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>{item.vote}</div>
+                </>
               )
             }
             {
               item.vote && !isDisplayResult && (
-                <div style={{fontSize: 36, fontWeight: 'bold', color:'#5190BF'}}>✔</div>
+                <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>✔</div>
               )
             }
           </List.Item>
