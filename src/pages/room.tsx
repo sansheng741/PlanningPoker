@@ -1,7 +1,7 @@
 import {socket} from '@/socket';
 import React, {useEffect, useState} from "react";
 import {history, useParams} from 'umi';
-import {Avatar, Button, Col, Input, List, Row} from "antd";
+import {Avatar, Button, Col, Flex, Input, List, Progress, Row} from "antd";
 import Poker from "@/components/Poker";
 import styles from './index.less';
 
@@ -142,48 +142,57 @@ const Room = () => {
           cards.map(item => {
             return (
               <Col key={item} flex={1}>
-                <Poker
-                  point={item}
-                  style={{
-                    backgroundColor: `${checkedPoint === item + '' ? '#39f3149e' : '#FFF'}`,
-                    color: `${checkedPoint === item + '' ? '#FFF' : ''}`
-                  }}
-                  onClick={handleCheckPoint}
-                />
+                <div className={styles.poker}>
+                  <Poker
+                    point={item}
+                    style={{
+                      backgroundColor: `${checkedPoint === item + '' ? '#39f3149e' : '#FFF'}`,
+                      color: `${checkedPoint === item + '' ? '#FFF' : ''}`,
+                    }}
+                    onClick={handleCheckPoint}
+                  />
+                </div>
               </Col>
             )
           })
         }
       </Row>
-      <p style={{color: '#828282', fontSize: 24}}>成员: </p>
+      <p style={{color: '#828282', fontSize: 24}}>成员: ({room?.members.length})</p>
       <List
-        itemLayout="horizontal"
+        grid={{
+          gutter: 16,
+          xs: 1,
+          sm: 2,
+          md: 4,
+          lg: 4,
+          xl: 6,
+          xxl: 3,
+        }}
         dataSource={room?.members}
         renderItem={(item, index) => (
           <List.Item>
-            <List.Item.Meta
-              avatar={
-                <Avatar
-                  style={{backgroundColor: ColorList[index % ColorList.length], verticalAlign: 'middle'}}
-                  size={72}
-                >
-                  {item.username}
-                </Avatar>}
-            />
-            {
-              isDisplayResult && (
-                <>
-                  <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[0] ? 'MAX' : ''}</div>
-                  <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[1] ? 'MIN' : ''}</div>
-                  <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>{item.vote}</div>
-                </>
-              )
-            }
-            {
-              item.vote && !isDisplayResult && (
-                <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>✔</div>
-              )
-            }
+            <Flex gap="small" vertical justify={'center'} align={'center'}>
+              <Avatar
+                style={{backgroundColor: ColorList[index % ColorList.length], verticalAlign: 'middle'}}
+                size={72}
+              >
+                {item.username}
+              </Avatar>
+              {
+                isDisplayResult && (
+                  <>
+                    <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>{item.vote}</div>
+                    <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[0] ? 'MAX' : ''}</div>
+                    <div style={{fontSize: 18, fontWeight: 'bold', color: '#ff0000'}}>{item.vote*1 === voteResult?.[1] ? 'MIN' : ''}</div>
+                  </>
+                )
+              }
+              {
+                item.vote && !isDisplayResult && (
+                  <div style={{fontSize: 36, fontWeight: 'bold', color: '#5190BF'}}>✔</div>
+                )
+              }
+            </Flex>
           </List.Item>
         )}
       />

@@ -4,7 +4,7 @@ import styles from './index.less'
 interface PokerProps {
   point: number | string;
   onClick?: (point: string) => void;
-  style: CSSProperties;
+  style?: CSSProperties;
 }
 
 const Poker: React.FC<PokerProps> = (props) => {
