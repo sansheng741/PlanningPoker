@@ -47,7 +47,7 @@ const joinRoom = (roomName, user) => {
     if (userInRoom && room.roomName === userInRoom.roomName) return;
     room.members.push(user)
     room.members.forEach(user => user.vote = '')
-    log(user.username, '加入了房间', roomName)
+    log(user.username, 'join room', roomName)
   }
 }
 
@@ -66,7 +66,7 @@ const leaveRoom = (socket) => {
   if (room && user) {
     room.members.splice(room.members.findIndex(user => user.userId === userId), 1)
     user.vote = ''
-    log(user.username, '离开了房间', room.roomName)
+    log(user.username, 'leave room', room.roomName)
     socket.to(room.roomName).emit(`notifyRoomMember`, {room});
   }
 }
@@ -75,7 +75,7 @@ io.on('connection', (socket) => {
   socket.on('disconnect', (username) => {
     let user = users.find(item => item.userId === socket.id)
     if (user) {
-      log(user.username, socket.id, '登出了');
+      log(user.username, socket.id, 'logout');
       leaveRoom(socket)
       removeUser(socket.id)
     }
@@ -84,7 +84,7 @@ io.on('connection', (socket) => {
   socket.on('login', (username, callback) => {
     let isExists = users.some(item => item.username === username);
     if (!isExists) {
-      log(username, socket.id, '登录了')
+      log(username, socket.id, 'login')
       users.push({username, userId: socket.id})
     }
     callback({isExists, rooms})
@@ -93,7 +93,7 @@ io.on('connection', (socket) => {
   socket.on('createRoom', (roomName, callback) => {
     let isExists = findRoom(roomName)
     if (!isExists) {
-      log(socket.id, '创建了房间', roomName)
+      log(socket.id, 'create room', roomName)
       let creator = findUser(socket.id)
       rooms.push({roomName, creator, members: []})
       io.emit('notifyRoomUpdate', {rooms})
