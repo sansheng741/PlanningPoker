@@ -129,7 +129,7 @@ const Room = () => {
           <Button type="primary" onClick={leaveRoom}>离开房间</Button>
         </Col>
       </Row>
-      <p style={{color: '#828282', fontSize: 24}}>故事卡: </p>
+      <p style={{color: '#828282', fontSize: 24}}>故事: </p>
       <Input
         disabled={usernameFromSession !== room?.creator.username}
         onPressEnter={submitStory}

@@ -8,5 +8,6 @@
 
 ## 启动
 - yarn
+- yarn build
 - node server
 - localhost:3000
