@@ -120,6 +120,7 @@ export default function HomePage() {
             xxl: 3,
           }}
           dataSource={rooms}
+          rowKey={(item) => item.roomName}
           renderItem={(item) => (
             <List.Item>
               <Card title={`🏡 ${item.roomName}`} extra={<a onClick={() => joinRoom(item.roomName)}>加入</a>}>创建者： {item.creator.username}</Card>

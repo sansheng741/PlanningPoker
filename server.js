@@ -28,6 +28,13 @@ app.get('*', (req, res) => {
 let users = [];
 let rooms = [];
 
+setInterval(() => {
+  if (users.length <= 0) {
+    rooms = []
+    log("clear room")
+  }
+}, 1000 * 60 * 60)
+
 const findUser = (id) => {
   return {...users.find(item => item.userId === id)};
 }

@@ -87,7 +87,6 @@ const Room = () => {
             return Number(item.vote);
           }
         }).filter(item => item)
-        console.log(votes)
         if (votes && votes.length > 0) {
           let maxVote = Math.max(...votes)
           let minVote = Math.min(...votes)
@@ -163,7 +162,7 @@ const Room = () => {
         </Col>
         <Col>
           {
-            isDisplayResult && (
+            isDisplayResult && voteResult?.[2] && (
               <div style={{fontSize: 16}}>平均值：{voteResult?.[2]}</div>
             )
           }
