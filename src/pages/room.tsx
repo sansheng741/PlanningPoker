@@ -41,6 +41,10 @@ const Room = () => {
     if (usernameFromSession && !socket.connected) {
       login()
     }
+    if (!usernameFromSession) {
+      history.push('/')
+      return
+    }
 
     socket.emit('joinRoom', params.roomName, ({user, room}) => {
       console.log(room)
